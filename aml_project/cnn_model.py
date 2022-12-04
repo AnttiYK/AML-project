@@ -5,6 +5,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 import random
+import matplotlib.pyplot as plt
 
 
 'split data to test and train sets'
@@ -16,9 +17,66 @@ def split_data(data):
     return train_ds, test_ds
 
 'predict results from image'
-def predict(model, images):
-    x = random.randint(1,3500)
-    return model.predict(np.expand_dims(images[x], axis=0)), images[x]
+def predict(model, image):
+    return model.predict(np.expand_dims(image, axis=0))
+
+'learning analyzis'
+def analyzis(history, n_epochs):
+    loss = history.history['loss']
+    sm_loss   = history.history['sm_head_loss']
+    fm_loss = history.history['fm_head_loss']
+    sm_acc = history.history['sm_head_accuracy']
+    fm_acc = history.history['fm_head_accuracy']
+    val_loss    = history.history['val_loss']
+    val_sm_loss = history.history['val_sm_head_loss']
+    val_fm_loss = history.history['val_fm_head_loss']
+    val_sm_acc = history.history['val_sm_head_accuracy']
+    val_fm_acc = history.history['val_fm_head_accuracy']
+    xc         = range(n_epochs)
+    plt.figure()
+    plt.suptitle("Training analysis")
+    l = plt.subplot(4,3,1)
+    plt.plot(xc, loss)
+    l.set_title('training loss')
+
+    sl = plt.subplot(4,3,2)
+    plt.plot(xc,sm_loss)
+    sl.set_title("sm training loss")
+
+    fl = plt.subplot(4,3,3)
+    plt.plot(xc, fm_loss)
+    fl.set_title('fm training loss')
+
+    sa = plt.subplot(4,3,4)
+    plt.plot(xc, sm_acc)
+    sa.set_title('sm training accuracy')
+
+    fa = plt.subplot(4,3,5)
+    plt.plot(xc, fm_acc)
+    fa.set_title('fm training accuracy')
+
+    vl = plt.subplot(4,3,6)
+    plt.plot(xc, val_loss)
+    vl.set_title('validation loss')
+
+    vsl = plt.subplot(4,3,7)
+    plt.plot(xc, val_sm_loss)
+    vsl.set_title('sm validation loss')
+
+    vfl = plt.subplot(4,3,8)
+    plt.plot(xc, val_fm_loss)
+    vfl.set_title('fm validation loss')
+
+    vsa = plt.subplot(4,3,9)
+    plt.plot(xc, val_sm_acc)
+    vsa.set_title('sm validation accuracy')    
+    
+    vfa = plt.subplot(4,3,10)
+    plt.plot(xc, val_fm_acc)
+    vfa.set_title('fm validation accuracy')
+    plt.tight_layout()
+    plt.show()
+
 
 'model architecture and training'
 def multi_task_model(images_train, images_test, face_train, face_test, smile_train, smile_test, scaled_size, n_epochs):
@@ -65,7 +123,9 @@ def multi_task_model(images_train, images_test, face_train, face_test, smile_tra
     }
 
     'fit model'
-    model.fit(images_train, trainTargets, validation_data = (images_test, testTargets), epochs = n_epochs, shuffle = True, verbose = 1)
+    history = model.fit(images_train, trainTargets, validation_data = (images_test, testTargets), epochs = n_epochs, shuffle = True, verbose = 1)
+
+    analyzis(history, n_epochs)
     
     'save model'
     model.save("cnn_model")

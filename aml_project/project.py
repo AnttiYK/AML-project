@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
 import platform
+from keras.callbacks import History 
 
 # project imports
 from read_data import read_data
@@ -50,15 +51,13 @@ def main():  # pragma: no cover
     smile_train, smile_test = cnn_model.split_data(smile_labels)
 
     'uncomment to train multitask model'
-    #cnn_model.multi_task_model(images_train, images_test, face_train, face_test, smile_train, smile_test, scaled_size, n_epochs)
+    cnn_model.multi_task_model(images_train, images_test, face_train, face_test, smile_train, smile_test, scaled_size, n_epochs)
     
     'load saved model'
     model = keras.models.load_model("cnn_model", compile=True)
 
-    'predicts random image from images_original'
-    prediction, image = cnn_model.predict(model, images_original)
-   
     'visualize prediction'
-    plotting.plot_prediction(prediction,image, scaled_size)
+    plotting.plot_prediction(model ,images_original, scaled_size)
 
-    # grad-cam or lime?
+    'grad-cam'
+    #to be implemented

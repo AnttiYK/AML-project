@@ -3,6 +3,7 @@ from matplotlib.patches import Rectangle
 import tensorflow as tf
 import cv2 as cv
 import random
+import cnn_model
 
 'displays heatmap over images showing pixel values before and after normalisation'
 def plot_pixels(images):
@@ -38,21 +39,31 @@ def plot_face(images, smile_labels):
         j = j + 1
     plt.show()
 
-def plot_prediction(prediction,image, sz):
-    smiling = prediction[0][0]
-    face = prediction[1][0]
-    'modify s to scale the boxes'
-    s = 15
-    'xmin, xmax, ymin, ymax'
-    start = (int(face[0] * sz - sz/s), int(face[3] * sz + sz/s))
-    end = (int(face[1] * sz + sz/s),int(face[2] * sz - sz/s))
-    cv.rectangle(image, start, end,(244,0,0),1)
-    im = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-    plt.imshow(im)
-    if(smiling[0] > smiling[1]):
-        plt.title("not smiling")
-    else:
-        plt.title("smiling")
+def plot_prediction(model,images, sz):
+    plt.figure(figsize=(10, 10))
+    plt.suptitle("Predicted results")
+    arr = [23, 24, 27, 28, 29, 30, 32, 35, 36]
+    j = 1
+    for i in arr:
+        image = images[i]
+        prediction = cnn_model.predict(model, image)
+        smiling = prediction[0][0]
+        face = prediction[1][0]
+        'modify s to scale the boxes'
+        s = 15
+        'xmin, xmax, ymin, ymax'
+        start = (int(face[0] * sz - sz/s), int(face[3] * sz + sz/s))
+        end = (int(face[1] * sz + sz/s),int(face[2] * sz - sz/s))
+        cv.rectangle(image, start, end,(244,0,0),1)
+        im = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        plt.subplot(3,3,j)
+        plt.imshow(im)
+        if(smiling[0] > smiling[1]):
+            plt.title("not smiling")
+        else:
+            plt.title("smiling")
+        plt.axis("off")
+        j = j +1
     plt.show() 
     
 
